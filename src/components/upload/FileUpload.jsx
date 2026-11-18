@@ -69,15 +69,6 @@ export default function FileUpload({
                         anything is processed.
                     </p>
                 </div>
-
-                <span
-                    className={`upload-status ${
-                        selectedFile ? "upload-status--success" : ""
-                    }`}
-                >
-                    <span className="upload-status-dot" />
-                    {selectedFile ? "File selected" : "Waiting for file"}
-                </span>
             </div>
 
             <div

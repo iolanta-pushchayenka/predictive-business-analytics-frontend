@@ -333,8 +333,8 @@
 }
 
 .upload-stepper-item.is-completed .upload-stepper-number {
-    background: #15803d;
-    border-color: #15803d;
+    background: #a472f4;
+    border-color: #a472f4;
 }
 
 /* Ensure inactive wizard steps remain hidden */

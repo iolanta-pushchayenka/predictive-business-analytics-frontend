@@ -5,6 +5,7 @@ import RegisterPage from "./pages/RegisterPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import UploadPage from "./pages/UploadPage";
+import AppLayout from "./components/layout/AppLayout";
 
 function App() {
 
@@ -15,11 +16,13 @@ function App() {
 
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-
-        <Route element={<ProtectedRoute />}>
+        
+        <Route element={<AppLayout />}>
+          <Route element={<ProtectedRoute />}>
                 <Route path="/home" element={<HomePage />} />
                 <Route path="/upload" element={<UploadPage />} />
             </Route>
+          </Route>
 
         <Route path="*" element={<h1>404 - Page not found</h1>} />
       </Routes>
