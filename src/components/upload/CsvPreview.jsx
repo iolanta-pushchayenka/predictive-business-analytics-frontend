@@ -1,4 +1,3 @@
-
 // Display the first rows of the selected CSV file
 export default function CsvPreview({ columns, rows }) {
     if (!columns.length || !rows.length) {
@@ -10,10 +9,7 @@ export default function CsvPreview({ columns, rows }) {
             <div className="csv-preview-header">
                 <h2>CSV Preview</h2>
 
-                <p>
-                    Showing the first {rows.length} rows
-                    of your dataset.
-                </p>
+                <p>Showing the first {rows.length} rows of your dataset.</p>
             </div>
 
             <div
@@ -37,9 +33,7 @@ export default function CsvPreview({ columns, rows }) {
                         {rows.map((row, rowIndex) => (
                             <tr key={rowIndex}>
                                 {columns.map((column, colIndex) => (
-                                    <td key={colIndex}>
-                                        {row[column] ?? ""}
-                                    </td>
+                                    <td key={colIndex}>{row[column] ?? ""}</td>
                                 ))}
                             </tr>
                         ))}

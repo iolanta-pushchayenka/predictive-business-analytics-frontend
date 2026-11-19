@@ -31,8 +31,7 @@ const DATE_RULES = {
 
 // Check whether a year is a leap year
 function isLeapYear(year) {
-    return year % 4 === 0 &&
-        (year % 100 !== 0 || year % 400 === 0);
+    return year % 4 === 0 && (year % 100 !== 0 || year % 400 === 0);
 }
 
 // Return the number of days in a month
@@ -47,11 +46,7 @@ function getDaysInMonth(year, month) {
 }
 
 // Validate and normalize a date using an explicit format
-export function normalizeDate(
-    value,
-    format = DATE_FORMATS.YMD_DASH,
-    options = {}
-) {
+export function normalizeDate(value, format = DATE_FORMATS.YMD_DASH, options = {}) {
     const rule = DATE_RULES[format];
 
     if (!rule) {

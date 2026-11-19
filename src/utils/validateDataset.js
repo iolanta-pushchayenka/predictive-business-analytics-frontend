@@ -1,14 +1,7 @@
-
 import { normalizeDate } from "./normalizeDate";
 import { normalizeAmount } from "./normalizeAmount";
 
-const MAPPING_FIELDS = [
-    "date",
-    "amount",
-    "customerId",
-    "orderId",
-    "category"
-];
+const MAPPING_FIELDS = ["date", "amount", "customerId", "orderId", "category"];
 
 // Validate the selected columns against the CSV headers
 function validateMapping(columns, mapping) {
@@ -20,9 +13,7 @@ function validateMapping(columns, mapping) {
         throw new Error("Date and amount columns are required");
     }
 
-    const selected = MAPPING_FIELDS
-        .map((field) => mapping[field])
-        .filter(Boolean);
+    const selected = MAPPING_FIELDS.map((field) => mapping[field]).filter(Boolean);
 
     for (const column of selected) {
         if (!columns.includes(column)) {
@@ -78,41 +69,21 @@ export function validateDataset(rows, columns, mapping, formats) {
     };
 
     const preparedRows = rows.map((row, index) => {
-        const dateResult = normalizeDate(
-            row[mapping.date],
-            formats.date,
-            {
-                twoDigitYearCentury:
-                    formats.twoDigitYearCentury
-            }
-        );
+        const dateResult = normalizeDate(row[mapping.date], formats.date, {
+            twoDigitYearCentury: formats.twoDigitYearCentury
+        });
 
-        const amountResult = normalizeAmount(
-            row[mapping.amount],
-            formats.amount
-        );
+        const amountResult = normalizeAmount(row[mapping.amount], formats.amount);
 
-        const customerId = normalizeOptionalText(
-            row,
-            mapping.customerId
-        );
+        const customerId = normalizeOptionalText(row, mapping.customerId);
 
-        const orderId = normalizeOptionalText(
-            row,
-            mapping.orderId
-        );
+        const orderId = normalizeOptionalText(row, mapping.orderId);
 
-        const category = normalizeOptionalText(
-            row,
-            mapping.category
-        );
+        const category = normalizeOptionalText(row, mapping.category);
 
         const validDate = dateResult.status === "valid";
 
-        const validAmount = (
-            amountResult.status === "valid" ||
-            amountResult.status === "negative"
-        );
+        const validAmount = amountResult.status === "valid" || amountResult.status === "negative";
 
         if (validDate) report.validDateRows++;
         if (validAmount) report.validAmountRows++;

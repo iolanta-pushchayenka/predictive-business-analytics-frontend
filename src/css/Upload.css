@@ -75,7 +75,9 @@
     border-radius: 14px;
     background: #fcfbff;
     text-align: center;
-    transition: background-color 0.2s, border-color 0.2s;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s;
 }
 
 .upload-dropzone--active {
@@ -125,7 +127,9 @@
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
-    transition: border-color 0.2s, background-color 0.2s;
+    transition:
+        border-color 0.2s,
+        background-color 0.2s;
 }
 
 .upload-browse-button:hover {
@@ -268,8 +272,6 @@
         transition: none;
     }
 }
-
-
 
 /* Wizard progress navigation */
 .upload-stepper {
@@ -553,8 +555,6 @@
     }
 }
 
-
-
 /* Column mapping card */
 .column-mapping-card {
     width: 100%;
@@ -674,8 +674,6 @@
         width: 100%;
     }
 }
-
-
 
 /* Data format settings */
 .data-formats {

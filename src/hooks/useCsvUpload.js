@@ -1,4 +1,3 @@
-
 import { useRef, useState } from "react";
 import { parseCsv } from "../utils/parseCsv";
 import { validateDataset } from "../utils/validateDataset";
@@ -6,7 +5,7 @@ import { validateDataset } from "../utils/validateDataset";
 const initialFormats = {
     date: "",
     amount: "",
-    twoDigitYearCentury: 2000,
+    twoDigitYearCentury: 2000
 };
 
 // Manage CSV preparation state and wizard navigation
@@ -73,7 +72,7 @@ export function useCsvUpload() {
 
         try {
             const result = await parseCsv(selectedFile, {
-                previewRows: 5,
+                previewRows: 5
             });
 
             // Ignore results from an outdated operation
@@ -177,12 +176,7 @@ export function useCsvUpload() {
         setValidationResult(null);
 
         try {
-            const result = validateDataset(
-                fullRows,
-                columns,
-                confirmedMapping,
-                formats
-            );
+            const result = validateDataset(fullRows, columns, confirmedMapping, formats);
 
             setValidationResult(result);
             setCurrentStep(4);
@@ -221,6 +215,6 @@ export function useCsvUpload() {
         handleMappingChange,
         handleFormatChange,
         handleValidateDataset,
-        handleBack,
+        handleBack
     };
 }

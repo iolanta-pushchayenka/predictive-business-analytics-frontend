@@ -1,12 +1,7 @@
 import { useState } from "react";
 
 // Display the CSV upload area and pass the selected file to the parent
-export default function FileUpload({
-    selectedFile,
-    onFileSelect,
-    maxFileSize = null,
-    error = "",
-}) {
+export default function FileUpload({ selectedFile, onFileSelect, maxFileSize = null, error = "" }) {
     const [isDragging, setIsDragging] = useState(false);
     const [localError, setLocalError] = useState("");
 
@@ -59,22 +54,17 @@ export default function FileUpload({
         <section className="upload-card">
             <div className="upload-header">
                 <div>
-                    <h2 className="upload-title">
-                        Upload CSV file
-                    </h2>
+                    <h2 className="upload-title">Upload CSV file</h2>
 
                     <p className="upload-description">
-                        Select a file containing your business
-                        transactions. You can review it before
-                        anything is processed.
+                        Select a file containing your business transactions. You can review it
+                        before anything is processed.
                     </p>
                 </div>
             </div>
 
             <div
-                className={`upload-dropzone ${
-                    isDragging ? "upload-dropzone--active" : ""
-                }`}
+                className={`upload-dropzone ${isDragging ? "upload-dropzone--active" : ""}`}
                 onDragOver={handleDragOver}
                 onDragLeave={() => setIsDragging(false)}
                 onDrop={handleDrop}
@@ -96,13 +86,9 @@ export default function FileUpload({
                     </svg>
                 </div>
 
-                <p className="upload-dropzone-title">
-                    Drag and drop your CSV file here
-                </p>
+                <p className="upload-dropzone-title">Drag and drop your CSV file here</p>
 
-                <p className="upload-dropzone-description">
-                    or choose a file from your device
-                </p>
+                <p className="upload-dropzone-description">or choose a file from your device</p>
 
                 <label className="upload-browse-button">
                     Browse files
@@ -118,9 +104,7 @@ export default function FileUpload({
                 <p className="upload-file-hint">
                     CSV files only
                     {maxFileSize !== null &&
-                        ` · Maximum file size ${Math.round(
-                            maxFileSize / (1024 * 1024)
-                        )} MB`}
+                        ` · Maximum file size ${Math.round(maxFileSize / (1024 * 1024))} MB`}
                 </p>
             </div>
 
@@ -132,9 +116,7 @@ export default function FileUpload({
                         </span>
 
                         <div>
-                            <p className="upload-file-name">
-                                {selectedFile.name}
-                            </p>
+                            <p className="upload-file-name">{selectedFile.name}</p>
 
                             <p className="upload-file-size">
                                 {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
@@ -142,9 +124,7 @@ export default function FileUpload({
                         </div>
                     </div>
 
-                    <span className="upload-file-success">
-                        File selected
-                    </span>
+                    <span className="upload-file-success">File selected</span>
                 </div>
             )}
 

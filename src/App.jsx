@@ -8,26 +8,25 @@ import UploadPage from "./pages/UploadPage";
 import AppLayout from "./components/layout/AppLayout";
 
 function App() {
+    return (
+        <>
+            <Routes>
+                <Route path="/" element={<Navigate to="/login" replace />} />
 
-  return (
-    <>
-      <Routes>
-        <Route path="/" element={<Navigate to="/login" replace />} />
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<RegisterPage />} />
 
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        
-        <Route element={<AppLayout />}>
-          <Route element={<ProtectedRoute />}>
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/upload" element={<UploadPage />} />
-            </Route>
-          </Route>
+                <Route element={<AppLayout />}>
+                    <Route element={<ProtectedRoute />}>
+                        <Route path="/home" element={<HomePage />} />
+                        <Route path="/upload" element={<UploadPage />} />
+                    </Route>
+                </Route>
 
-        <Route path="*" element={<h1>404 - Page not found</h1>} />
-      </Routes>
-    </>
-  )
+                <Route path="*" element={<h1>404 - Page not found</h1>} />
+            </Routes>
+        </>
+    );
 }
 
-export default App
+export default App;

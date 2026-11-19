@@ -22,7 +22,7 @@ export default function RegisterPage() {
 
         try {
             await register(email, password);
-            navigate("/home", { replace: true });
+            navigate("/upload", { replace: true });
         } catch (error) {
             setError(error.message || "Failed to register");
         } finally {
@@ -33,13 +33,9 @@ export default function RegisterPage() {
     return (
         <main className="auth-page">
             <form className="auth-card" onSubmit={handleSubmit}>
-                <h1 className="auth-title">
-                    Create an account
-                </h1>
+                <h1 className="auth-title">Create an account</h1>
 
-                <p className="auth-description">
-                    Get started with Business Analytics
-                </p>
+                <p className="auth-description">Get started with Business Analytics</p>
 
                 <div className="auth-field">
                     <label className="auth-label" htmlFor="email">

@@ -1,10 +1,4 @@
-
-const steps = [
-    "Upload File",
-    "Column Mapping",
-    "Data Formats",
-    "Validation",
-];
+const steps = ["Upload File", "Column Mapping", "Data Formats", "Validation"];
 
 // Display the current step of CSV data preparation
 export default function UploadStepper({ currentStep }) {
@@ -28,9 +22,7 @@ export default function UploadStepper({ currentStep }) {
                                 {completed ? "✓" : stepNumber}
                             </span>
 
-                            <span className="upload-stepper-label">
-                                {step}
-                            </span>
+                            <span className="upload-stepper-label">{step}</span>
                         </li>
                     );
                 })}
