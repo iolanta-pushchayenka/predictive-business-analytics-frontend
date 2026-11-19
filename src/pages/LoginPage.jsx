@@ -35,9 +35,7 @@ export default function LoginPage() {
             <form className="auth-card" onSubmit={handleSubmit}>
                 <h1 className="auth-title">Welcome back</h1>
 
-                <p className="auth-description">
-                    Log in to your Business Analytics account
-                </p>
+                <p className="auth-description">Log in to your Business Analytics account</p>
 
                 <div className="auth-field">
                     <label className="auth-label" htmlFor="email">

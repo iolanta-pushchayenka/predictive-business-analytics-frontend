@@ -33,14 +33,9 @@ export default function UploadPage() {
                         loading={upload.previewLoading}
                     />
 
-                    {upload.previewLoading && (
-                        <p role="status">Reading CSV file...</p>
-                    )}
+                    {upload.previewLoading && <p role="status">Reading CSV file...</p>}
 
-                    <CsvPreview
-                        columns={upload.columns}
-                        rows={upload.preview}
-                    />
+                    <CsvPreview columns={upload.columns} rows={upload.preview} />
 
                     <div className="upload-actions">
                         <button
@@ -48,9 +43,7 @@ export default function UploadPage() {
                             type="button"
                             onClick={upload.handleContinueFromUpload}
                             disabled={
-                                !upload.file ||
-                                !upload.columns.length ||
-                                upload.previewLoading
+                                !upload.file || !upload.columns.length || upload.previewLoading
                             }
                         >
                             Continue
@@ -73,49 +66,42 @@ export default function UploadPage() {
             )}
 
             {/* Step 3: Data format settings */}
-            {upload.currentStep === 3 &&
-                upload.confirmedMapping && (
-                    <section className="upload-step-card">
+            {upload.currentStep === 3 && upload.confirmedMapping && (
+                <section className="upload-step-card">
+                    <p className="upload-step-description">
+                        Your CSV file contains {upload.fullRows.length} rows. Specify the formats
+                        used in your dataset.
+                    </p>
 
-                        <p className="upload-step-description">
-                            Your CSV file contains {upload.fullRows.length} rows.
-                            Specify the formats used in your dataset.
-                        </p>
+                    <DataFormatSettings
+                        formats={upload.formats}
+                        onChange={upload.handleFormatChange}
+                    />
 
-                        <DataFormatSettings
-                            formats={upload.formats}
-                            onChange={upload.handleFormatChange}
-                        />
-
-                        <div className="upload-actions">
-                            <button
-                                className="upload-primary-button"
-                                type="button"
-                                onClick={upload.handleValidateDataset}
-                                disabled={
-                                    !upload.formats.date ||
-                                    !upload.formats.amount
-                                }
-                            >
-                                Validate Dataset
-                            </button>
-                        </div>
-                    </section>
-                )}
+                    <div className="upload-actions">
+                        <button
+                            className="upload-primary-button"
+                            type="button"
+                            onClick={upload.handleValidateDataset}
+                            disabled={
+                                !upload.formats.date || !upload.formats.amount || upload.processing
+                            }
+                        >
+                            Validate Dataset
+                        </button>
+                    </div>
+                </section>
+            )}
 
             {/* Step 4: Validation results */}
             {upload.currentStep === 4 && (
                 <ValidationSummary
                     validationResult={upload.validationResult}
-                    hasCustomerId={
-                        Boolean(upload.confirmedMapping?.customerId)
-                    }
+                    hasCustomerId={Boolean(upload.confirmedMapping?.customerId)}
                 />
             )}
 
-            {upload.processing && (
-                <p role="status">Processing CSV file...</p>
-            )}
+            {upload.processing && <p role="status">Processing CSV file...</p>}
 
             {upload.currentStep > 1 && (
                 <div className="upload-back-actions">

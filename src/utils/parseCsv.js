@@ -16,9 +16,7 @@ export function parseCsv(file, { previewRows = 0 } = {}) {
                 if (results.errors.length > 0) {
                     const firstError = results.errors[0];
 
-                    reject(new Error(
-                        `CSV parsing error: ${firstError.message}`
-                    ));
+                    reject(new Error(`CSV parsing error: ${firstError.message}`));
                     return;
                 }
 

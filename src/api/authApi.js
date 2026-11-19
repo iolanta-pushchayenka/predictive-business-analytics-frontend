@@ -1,48 +1,42 @@
-const API_URL = import.meta.env.VITE_API_URL;
+/** @import { AuthResponse, AuthUser } from "../types/apiTypes.js" */
+import { apiRequest } from "./apiClient";
 
-// Shared function for registration and login POST requests
-async function authRequest(endpoint, email, password) {
-    const response = await fetch(`${API_URL}/auth/${endpoint}`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ email, password })
-    });
-
-    if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-
-        throw new Error(
-            data.error || "Authentication request failed"
-        );
-    }
-
-    return response.json();
-}
-
-
-// POST /api/auth/register - Create a new user account
+// POST /api/auth/register - Create a new user account.
+/**
+ * Register a new user.
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<AuthResponse>}
+ */
 export function registerUser(email, password) {
-    return authRequest("register", email, password);
-}
-
-// POST /api/auth/login - Log in and receive a JWT
-export function loginUser(email, password) {
-    return authRequest("login", email, password);
-}
-
-// GET /api/auth/me - Get the current user using a JWT
-export async function getCurrentUser(token) {
-    const response = await fetch(`${API_URL}/auth/me`, {
-        headers: {
-            Authorization: `Bearer ${token}`
-        }
+    return apiRequest("/auth/register", {
+        method: "POST",
+        body: { email, password }
     });
+}
 
-    if (!response.ok) {
-        throw new Error("Failed to authenticate user");
-    }
+// POST /api/auth/login - Log in and receive a JWT.
+/**
+ * Log in and receive a JWT.
+ * @param {string} email
+ * @param {string} password
+ * @returns {Promise<AuthResponse>}
+ */
+export function loginUser(email, password) {
+    return apiRequest("/auth/login", {
+        method: "POST",
+        body: { email, password }
+    });
+}
 
-    return response.json();
+// GET /api/auth/me - Get the current user using a JWT.
+/**
+ * Get the current user.
+ * @param {string} token
+ * @returns {Promise<AuthUser>}
+ */
+export function getCurrentUser(token) {
+    return apiRequest("/auth/me", {
+        token
+    });
 }

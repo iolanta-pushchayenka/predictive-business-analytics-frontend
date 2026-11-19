@@ -1,4 +1,3 @@
-
 import { describe, it, expect } from "vitest";
 import { normalizeAmount, AMOUNT_FORMATS } from "./normalizeAmount";
 
@@ -73,7 +72,6 @@ describe("normalizeAmount", () => {
     });
 
     it("rejects unsupported configuration", () => {
-        expect(() => normalizeAmount("100", "unknown"))
-            .toThrow("Unsupported amount format");
+        expect(() => normalizeAmount("100", "unknown")).toThrow("Unsupported amount format");
     });
 });

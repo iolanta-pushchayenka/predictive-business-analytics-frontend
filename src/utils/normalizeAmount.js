@@ -54,9 +54,7 @@ export function normalizeAmount(value, format = AMOUNT_FORMATS.DOT) {
         return { value: null, status: "invalid" };
     }
 
-    const text = value
-        .trim()
-        .replace(/[\u00A0\u202F]/g, " ");
+    const text = value.trim().replace(/[\u00A0\u202F]/g, " ");
 
     if (text === "") {
         return { value: null, status: "missing" };
@@ -86,10 +84,7 @@ export function normalizeAmount(value, format = AMOUNT_FORMATS.DOT) {
     const integer = integerPart.replace(/^0+/, "") || "0";
     const decimal = decimalPart.replace(/0+$/, "");
 
-    if (
-        integer.length > MAX_INTEGER_DIGITS ||
-        decimal.length > MAX_DECIMAL_PLACES
-    ) {
+    if (integer.length > MAX_INTEGER_DIGITS || decimal.length > MAX_DECIMAL_PLACES) {
         return { value: null, status: "invalid" };
     }
 

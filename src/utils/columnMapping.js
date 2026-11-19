@@ -1,42 +1,21 @@
-
 export const COLUMN_ALIASES = {
-    date: [
-        "date",
-        "order date",
-        "transaction date",
-        "purchase date",
-        "sale date"
-    ],
+    date: ["date", "order date", "transaction date", "purchase date", "sale date"],
 
-    amount: [
-        "amount",
-        "sales",
-        "revenue",
-        "total",
-        "sales amount"
-    ],
+    amount: ["amount", "sales", "revenue", "total", "sales amount"],
 
-    customerId: [
-        "customer id",
-        "client id",
-        "buyer id"
-    ],
+    customerId: ["customer id", "client id", "buyer id"],
 
-    orderId: [
-        "order id",
-        "transaction id",
-        "invoice id"
-    ],
+    orderId: ["order id", "transaction id", "invoice id"],
 
-    category: [
-        "category",
-        "product category"
-    ]
+    category: ["category", "product category"]
 };
 
 // Normalize a CSV column name for comparison
 export function normalizeColumnName(name) {
-    return name.trim().toLowerCase().replace(/[\s_-]+/g, "");
+    return name
+        .trim()
+        .toLowerCase()
+        .replace(/[\s_-]+/g, "");
 }
 
 // Detect matching CSV columns using predefined aliases
@@ -51,9 +30,7 @@ export function detectColumnMapping(columns) {
 
     for (const [field, aliases] of Object.entries(COLUMN_ALIASES)) {
         const matches = columns.filter((column) =>
-            aliases.some((alias) =>
-                normalizeColumnName(column) === normalizeColumnName(alias)
-            )
+            aliases.some((alias) => normalizeColumnName(column) === normalizeColumnName(alias))
         );
 
         // Avoid choosing a column when multiple matches are found
