@@ -1,6 +1,7 @@
 import { useRef, useState } from "react";
-import { parseCsv } from "../utils/parseCsv";
-import { validateDataset } from "../utils/validateDataset";
+import { parseCsv } from "../utils/parseCsv.js";
+import { profileDataset } from "../utils/profileDataset.js";
+import { validateDataset, validateMapping } from "../utils/validateDataset.js";
 
 const initialFormats = {
     date: "",
@@ -18,7 +19,9 @@ export function useCsvUpload() {
     const [error, setError] = useState("");
 
     const [confirmedMapping, setConfirmedMapping] = useState(null);
-    const [fullRows, setFullRows] = useState([]);
+    const [fullDataset, setFullDataset] = useState(null);
+    const [initialProfile, setInitialProfile] = useState(null);
+    const fullRows = fullDataset?.rows ?? [];
 
     const [previewLoading, setPreviewLoading] = useState(false);
     const [processing, setProcessing] = useState(false);
@@ -48,7 +51,8 @@ export function useCsvUpload() {
         setError("");
 
         setConfirmedMapping(null);
-        setFullRows([]);
+        setFullDataset(null);
+        setInitialProfile(null);
 
         setPreviewLoading(false);
         setProcessing(false);
@@ -78,10 +82,6 @@ export function useCsvUpload() {
             // Ignore results from an outdated operation
             if (operationId !== operationIdRef.current) return;
 
-            if (!result.columns.length) {
-                throw new Error("No CSV columns were found.");
-            }
-
             setFile(selectedFile);
             setColumns(result.columns);
             setPreview(result.rows);
@@ -96,38 +96,28 @@ export function useCsvUpload() {
         }
     }
 
-    // Continue to column mapping after CSV preview is ready
-    function handleContinueFromUpload() {
-        if (!file || !columns.length || previewLoading) return;
+    // Validate the entire file before entering mapping and reuse a successful parse.
+    async function handleContinueFromUpload() {
+        if (!file || previewLoading || processingRef.current) return;
 
         setError("");
-        setCurrentStep(2);
-    }
-
-    // Confirm mapping and parse the complete CSV file
-    async function handleMappingConfirm(mapping) {
-        if (!file || processingRef.current) return;
+        if (fullDataset) {
+            setCurrentStep(2);
+            return;
+        }
 
         const operationId = ++operationIdRef.current;
-
         processingRef.current = true;
-
-        setError("");
         setProcessing(true);
-
-        setConfirmedMapping(null);
-        setFullRows([]);
-        setValidationResult(null);
 
         try {
             const result = await parseCsv(file);
-
-            // Ignore outdated parsing results
             if (operationId !== operationIdRef.current) return;
 
-            setFullRows(result.rows);
-            setConfirmedMapping(mapping);
-            setCurrentStep(3);
+            setFullDataset(result);
+            setColumns(result.columns);
+            setPreview(result.rows.slice(0, 5));
+            setCurrentStep(2);
         } catch (err) {
             if (operationId !== operationIdRef.current) return;
 
@@ -140,15 +130,26 @@ export function useCsvUpload() {
         }
     }
 
-    // Invalidate parsed data when the column mapping changes
+    // Profile the full parsed dataset after validating the selected mapping.
+    function handleMappingConfirm(mapping) {
+        if (!fullDataset) return;
+
+        setError("");
+        try {
+            validateMapping(fullDataset.columns, mapping);
+            setInitialProfile(profileDataset(fullDataset.rows, fullDataset.columns, mapping));
+            setConfirmedMapping(mapping);
+            setValidationResult(null);
+            setCurrentStep(3);
+        } catch (err) {
+            setError(err.message || "Failed to profile CSV.");
+        }
+    }
+
+    // Invalidate mapping-dependent results while retaining parsed data.
     function handleMappingChange() {
-        operationIdRef.current++;
-        processingRef.current = false;
-
         setConfirmedMapping(null);
-        setFullRows([]);
-        setProcessing(false);
-
+        setInitialProfile(null);
         setValidationResult(null);
         setError("");
     }
@@ -176,7 +177,12 @@ export function useCsvUpload() {
         setValidationResult(null);
 
         try {
-            const result = validateDataset(fullRows, columns, confirmedMapping, formats);
+            const result = validateDataset(
+                fullRows,
+                fullDataset.columns,
+                confirmedMapping,
+                formats
+            );
 
             setValidationResult(result);
             setCurrentStep(4);
@@ -203,6 +209,7 @@ export function useCsvUpload() {
         error,
         confirmedMapping,
         fullRows,
+        initialProfile,
         previewLoading,
         processing,
         fileVersion,

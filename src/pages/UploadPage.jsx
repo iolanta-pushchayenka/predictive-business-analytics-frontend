@@ -27,11 +27,7 @@ export default function UploadPage() {
             {/* Step 1: Upload and preview CSV */}
             {upload.currentStep === 1 && (
                 <>
-                    <FileUpload
-                        file={upload.file}
-                        onFileSelect={upload.handleFileSelect}
-                        loading={upload.previewLoading}
-                    />
+                    <FileUpload selectedFile={upload.file} onFileSelect={upload.handleFileSelect} />
 
                     {upload.previewLoading && <p role="status">Reading CSV file...</p>}
 
@@ -42,9 +38,7 @@ export default function UploadPage() {
                             className="upload-primary-button"
                             type="button"
                             onClick={upload.handleContinueFromUpload}
-                            disabled={
-                                !upload.file || !upload.columns.length || upload.previewLoading
-                            }
+                            disabled={!upload.file || upload.previewLoading || upload.processing}
                         >
                             Continue
                         </button>
