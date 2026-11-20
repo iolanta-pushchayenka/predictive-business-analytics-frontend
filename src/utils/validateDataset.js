@@ -1,18 +1,14 @@
 import { normalizeDate } from "./normalizeDate.js";
 import { normalizeAmount } from "./normalizeAmount.js";
-
-const OPTIONAL_FIELDS = ["customerId", "orderId", "category"];
-const MAPPING_FIELDS = ["date", "amount", ...OPTIONAL_FIELDS];
-
-const DATE_ISSUES = {
-    missing: "MISSING_DATE",
-    invalid: "INVALID_DATE"
-};
-
-const AMOUNT_ISSUES = {
-    missing: "MISSING_AMOUNT",
-    invalid: "INVALID_AMOUNT"
-};
+import { analyzeAmountOutliers } from "./analyzeAmountOutliers.js";
+import { buildAnalysisEligibility, hasValidAmount } from "./buildAnalysisEligibility.js";
+import {
+    buildPreparationIssues,
+    MAPPING_FIELDS,
+    normalizeOptionalText,
+    OPTIONAL_FIELDS
+} from "./buildPreparationIssues.js";
+import { checkPreparedDatasetIntegrity } from "./checkPreparedDatasetIntegrity.js";
 
 // Validate the selected columns against the CSV headers
 export function validateMapping(columns, mapping) {
@@ -37,76 +33,7 @@ export function validateMapping(columns, mapping) {
     }
 }
 
-// Return an optional text field or null
-function normalizeOptionalText(row, column) {
-    if (!column) return null;
-
-    const value = row[column];
-
-    if (value === null || value === undefined) {
-        return null;
-    }
-
-    return String(value).trim() || null;
-}
-
-function collectRepeatedKeys(rows, keyForRow) {
-    const seen = new Set();
-    const repeated = new Set();
-
-    for (const row of rows) {
-        const key = keyForRow(row);
-        if (key === null) continue;
-
-        if (seen.has(key)) {
-            repeated.add(key);
-        } else {
-            seen.add(key);
-        }
-    }
-
-    return repeated;
-}
-
-function appendMatchIssues(preparedRows, mapping, issues) {
-    const mappedFields = MAPPING_FIELDS.filter((field) => Boolean(mapping[field]));
-
-    function duplicateKey(row) {
-        if (!row.validForSales) return null;
-
-        return JSON.stringify(mappedFields.map((field) => row[field]));
-    }
-
-    const duplicateKeys = collectRepeatedKeys(preparedRows, duplicateKey);
-    const repeatedOrderIds = collectRepeatedKeys(preparedRows, (row) => row.orderId);
-
-    for (const row of preparedRows) {
-        if (duplicateKeys.has(duplicateKey(row))) {
-            issues.push({
-                code: "POSSIBLE_DUPLICATE",
-                severity: "warning",
-                recordNumber: row.recordNumber,
-                field: null
-            });
-        }
-
-        if (repeatedOrderIds.has(row.orderId)) {
-            issues.push({
-                code: "REPEATED_ORDER_ID",
-                severity: "warning",
-                recordNumber: row.recordNumber,
-                field: "orderId"
-            });
-        }
-    }
-}
-
-/**
- * Validate and normalize records without modifying the source rows.
- * Issues contain { code, severity, recordNumber, field }.
- * recordNumber is the one-based CSV data-record ordinal.
- * field is a business field name, or null for a whole-record issue.
- */
+/** Prepare records and attach analysis eligibility and integrity diagnostics. */
 export function validateDataset(rows, columns, mapping, formats) {
     if (!Array.isArray(rows)) {
         throw new Error("Dataset rows must be an array");
@@ -122,7 +49,6 @@ export function validateDataset(rows, columns, mapping, formats) {
         throw new Error("CSV contains no data rows");
     }
 
-    const issues = [];
     const report = {
         totalRows: rows.length,
         validDateRows: 0,
@@ -133,6 +59,8 @@ export function validateDataset(rows, columns, mapping, formats) {
         missingAmounts: 0,
         invalidAmounts: 0,
         negativeAmounts: 0,
+        zeroAmounts: 0,
+        highValueOutlierCount: 0,
         missingCustomerIds: 0
     };
 
@@ -143,55 +71,15 @@ export function validateDataset(rows, columns, mapping, formats) {
         });
         const amountResult = normalizeAmount(row[mapping.amount], formats.amount);
 
-        const dateIssue = DATE_ISSUES[dateResult.status];
-        if (dateIssue) {
-            issues.push({
-                code: dateIssue,
-                severity: "error",
-                recordNumber,
-                field: "date"
-            });
-        }
-
-        const amountIssue = AMOUNT_ISSUES[amountResult.status];
-        if (amountIssue) {
-            issues.push({
-                code: amountIssue,
-                severity: "error",
-                recordNumber,
-                field: "amount"
-            });
-        }
-
         const isNegativeAmount = amountResult.status === "negative";
-        if (isNegativeAmount) {
-            issues.push({
-                code: "NEGATIVE_AMOUNT",
-                severity: "warning",
-                recordNumber,
-                field: "amount"
-            });
-        }
-
         const optional = {};
 
         for (const field of OPTIONAL_FIELDS) {
-            const column = mapping[field];
-            const value = normalizeOptionalText(row, column);
-            optional[field] = value;
-
-            if (column && value === null) {
-                issues.push({
-                    code: "MISSING_OPTIONAL_VALUE",
-                    severity: "warning",
-                    recordNumber,
-                    field
-                });
-            }
+            optional[field] = normalizeOptionalText(row, mapping[field]);
         }
 
         const validDate = dateResult.status === "valid";
-        const validAmount = amountResult.status === "valid" || isNegativeAmount;
+        const validAmount = hasValidAmount({ amountStatus: amountResult.status });
         const validForSales = validDate && validAmount;
 
         if (validDate) report.validDateRows++;
@@ -202,6 +90,9 @@ export function validateDataset(rows, columns, mapping, formats) {
         if (amountResult.status === "missing") report.missingAmounts++;
         if (amountResult.status === "invalid") report.invalidAmounts++;
         if (isNegativeAmount) report.negativeAmounts++;
+        if (amountResult.status === "valid" && amountResult.value === "0") {
+            report.zeroAmounts++;
+        }
 
         if (mapping.customerId && optional.customerId === null) {
             report.missingCustomerIds++;
@@ -218,11 +109,21 @@ export function validateDataset(rows, columns, mapping, formats) {
         };
     });
 
-    appendMatchIssues(preparedRows, mapping, issues);
+    const { diagnostics: outlierAnalysis, outlierRecordNumbers } =
+        analyzeAmountOutliers(preparedRows);
 
-    return {
+    report.highValueOutlierCount = outlierRecordNumbers.length;
+
+    const result = {
         preparedRows,
         report,
-        issues
+        issues: buildPreparationIssues(preparedRows, mapping, outlierRecordNumbers),
+        outlierAnalysis,
+        analysisEligibility: buildAnalysisEligibility(preparedRows, mapping)
+    };
+
+    return {
+        ...result,
+        integrity: checkPreparedDatasetIntegrity(rows, mapping, result)
     };
 }

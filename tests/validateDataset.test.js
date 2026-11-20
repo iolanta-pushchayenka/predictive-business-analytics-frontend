@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { parseCsv } from "../src/utils/parseCsv.js";
 import { validateDataset } from "../src/utils/validateDataset.js";
+import { selectAnalysisRows } from "../src/utils/buildAnalysisEligibility.js";
 
 const columns = ["day", "total", "customer", "order", "group", "note"];
 const requiredMapping = { date: "day", amount: "total" };
@@ -26,7 +27,9 @@ describe("validateDataset", () => {
 
         const result = validateDataset(rows, columns, fullMapping, formats);
 
-        expect(result).toEqual({
+        const { analysisEligibility, integrity, ...previousResult } = result;
+
+        expect(previousResult).toEqual({
             preparedRows: [
                 {
                     recordNumber: 1,
@@ -50,10 +53,27 @@ describe("validateDataset", () => {
                 missingAmounts: 0,
                 invalidAmounts: 0,
                 negativeAmounts: 0,
+                zeroAmounts: 0,
+                highValueOutlierCount: 0,
                 missingCustomerIds: 0
             },
-            issues: []
+            issues: [],
+            outlierAnalysis: {
+                status: "unavailable",
+                reason: "insufficient_sample",
+                eligibleCount: 1,
+                q1: null,
+                q3: null,
+                iqr: null,
+                upperThreshold: null
+            }
         });
+        expect(analysisEligibility.overallNetSales).toMatchObject({
+            status: "available",
+            eligibleCount: 1,
+            eligibleRecordNumbers: [1]
+        });
+        expect(integrity).toEqual({ status: "passed", violations: [] });
     });
 
     it("reports missing and invalid values without inventing replacements", () => {
@@ -227,5 +247,113 @@ describe("validateDataset", () => {
             { code: "POSSIBLE_DUPLICATE", severity: "warning", recordNumber: 1, field: null },
             { code: "POSSIBLE_DUPLICATE", severity: "warning", recordNumber: 2, field: null }
         ]);
+    });
+
+    it("counts zeros and flags high amounts without changing Phase 2 behavior", () => {
+        const amounts = [
+            "0", "0.00", "-0.00", "+0", "00.000", " 0 ",
+            ...Array(12).fill("2"),
+            "5", "5.000001", "-10.50", "", "invalid"
+        ];
+        const rows = Object.freeze(
+            amounts.map((total, index) =>
+                Object.freeze({ day: index === 19 ? "invalid date" : "1/11/2026", total })
+            )
+        );
+        const result = validateDataset(rows, columns, requiredMapping, formats);
+        expect(result.integrity).toEqual({ status: "passed", violations: [] });
+        expect(result.analysisEligibility.overallNetSales.eligibleRecordNumbers).toContain(20);
+        expect(result.analysisEligibility.dailySalesTrends.eligibleRecordNumbers).not.toContain(20);
+
+        expect(result.report).toMatchObject({
+            totalRows: 23,
+            zeroAmounts: 6,
+            negativeAmounts: 1,
+            highValueOutlierCount: 1,
+            validAmountRows: 21,
+            validSalesRows: 20
+        });
+        expect(result.outlierAnalysis).toEqual({
+            status: "available",
+            reason: null,
+            eligibleCount: 20,
+            q1: "0",
+            q3: "2",
+            iqr: "2",
+            upperThreshold: "5"
+        });
+        expect(result.issues.filter(({ code }) => code === "NEGATIVE_AMOUNT")).toEqual([
+            { code: "NEGATIVE_AMOUNT", severity: "warning", recordNumber: 21, field: "amount" }
+        ]);
+        expect(result.issues.filter(({ code }) => code === "HIGH_VALUE_OUTLIER")).toEqual([
+            { code: "HIGH_VALUE_OUTLIER", severity: "warning", recordNumber: 20, field: "amount" }
+        ]);
+        expect(result.preparedRows.map(({ recordNumber }) => recordNumber)).toEqual(
+            amounts.map((_, index) => index + 1)
+        );
+        expect(result.preparedRows[18]).toMatchObject({ amount: "5", validForSales: true });
+        expect(result.preparedRows[19]).toMatchObject({
+            amount: "5.000001",
+            amountStatus: "valid",
+            dateStatus: "invalid",
+            validForSales: false
+        });
+        expect(result.preparedRows[20]).toMatchObject({
+            amount: "-10.5",
+            amountStatus: "negative",
+            validForSales: true
+        });
+        expect(rows.map(({ total }) => total)).toEqual(amounts);
+    });
+
+    it("keeps CSV record numbers and selects eligible rows without mutating the source", async () => {
+        const csv =
+            "day,total,customer,order,group\n" +
+            "1/11/2026,012.50,001,A,Books\n" +
+            "\n" +
+            "01/11/2026,12.5,001,A,Books\n" +
+            "bad date,-5,001,A,Books\n" +
+            "2/11/2026,0,,B,\n" +
+            "2/11/2026,,002,C,Books\n";
+        const dataset = await parseCsv(csv);
+        const originalRows = dataset.rows.map((row) => ({ ...row }));
+        dataset.rows.forEach(Object.freeze);
+        Object.freeze(dataset.rows);
+        Object.freeze(dataset.columns);
+
+        const result = validateDataset(dataset.rows, dataset.columns, fullMapping, formats);
+
+        expect(result.integrity).toEqual({ status: "passed", violations: [] });
+        expect(result.preparedRows.map(({ recordNumber }) => recordNumber)).toEqual([
+            1, 2, 3, 4, 5
+        ]);
+        expect(result.report).toMatchObject({
+            totalRows: 5,
+            validSalesRows: 3,
+            zeroAmounts: 1,
+            negativeAmounts: 1
+        });
+        expect(result.outlierAnalysis).toMatchObject({
+            status: "unavailable",
+            reason: "insufficient_sample",
+            eligibleCount: 3
+        });
+
+        const expected = {
+            overallNetSales: [1, 2, 3, 4],
+            dailySalesTrends: [1, 2, 4],
+            salesByCategory: [1, 2, 3],
+            customerLinkedSales: [1, 2, 3],
+            customerSalesByDate: [1, 2]
+        };
+
+        for (const [operation, recordNumbers] of Object.entries(expected)) {
+            const selected = selectAnalysisRows(result, operation);
+
+            expect(selected.status).toBe("available");
+            expect(selected.rows.map(({ recordNumber }) => recordNumber)).toEqual(recordNumbers);
+        }
+
+        expect(dataset.rows).toEqual(originalRows);
     });
 });
