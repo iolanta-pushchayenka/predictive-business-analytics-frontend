@@ -2,6 +2,7 @@ import FileUpload from "../components/upload/FileUpload";
 import UploadStepper from "../components/upload/UploadStepper";
 import CsvPreview from "../components/upload/CsvPreview";
 import ValidationSummary from "../components/upload/ValidationSummary";
+import { getAnalysisReadiness } from "../components/upload/validationReportPresentation.js";
 
 import ColumnMapping from "../components/ColumnMapping";
 import DataFormatSettings from "../components/DataFormatSettings";
@@ -13,6 +14,13 @@ import "../css/Upload.css";
 // Build the CSV preparation wizard from reusable components
 export default function UploadPage() {
     const upload = useCsvUpload();
+
+    const busy = upload.previewLoading || upload.processing;
+    const readiness = getAnalysisReadiness({
+        currentStep: upload.currentStep,
+        validationResult: upload.validationResult,
+        busy
+    });
 
     return (
         <main className="upload-page">
@@ -27,7 +35,11 @@ export default function UploadPage() {
             {/* Step 1: Upload and preview CSV */}
             {upload.currentStep === 1 && (
                 <>
-                    <FileUpload selectedFile={upload.file} onFileSelect={upload.handleFileSelect} />
+                    <FileUpload
+                        file={upload.file}
+                        onFileSelect={upload.handleFileSelect}
+                        loading={upload.previewLoading}
+                    />
 
                     {upload.previewLoading && <p role="status">Reading CSV file...</p>}
 
@@ -38,7 +50,9 @@ export default function UploadPage() {
                             className="upload-primary-button"
                             type="button"
                             onClick={upload.handleContinueFromUpload}
-                            disabled={!upload.file || upload.previewLoading || upload.processing}
+                            disabled={
+                                !upload.file || !upload.columns.length || upload.previewLoading
+                            }
                         >
                             Continue
                         </button>
@@ -87,27 +101,15 @@ export default function UploadPage() {
                 </section>
             )}
 
-            {/* Step 4: Validation results */}
+            {/* Step 4: Data quality report */}
             {upload.currentStep === 4 && (
                 <ValidationSummary
                     validationResult={upload.validationResult}
-                    hasCustomerId={Boolean(upload.confirmedMapping?.customerId)}
+                    initialProfile={upload.initialProfile}
+                    confirmedMapping={upload.confirmedMapping}
+                    readiness={readiness}
+                    busy={busy}
                 />
-            )}
-
-            {upload.processing && <p role="status">Processing CSV file...</p>}
-
-            {upload.currentStep > 1 && (
-                <div className="upload-back-actions">
-                    <button
-                        className="upload-secondary-button"
-                        type="button"
-                        onClick={upload.handleBack}
-                        disabled={upload.processing}
-                    >
-                        ← Back
-                    </button>
-                </div>
             )}
         </main>
     );
