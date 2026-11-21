@@ -1,0 +1,72 @@
+.analysis-page {
+    width: 100%;
+    min-width: 0;
+}
+
+.analysis-description {
+    color: #777;
+    margin-bottom: 24px;
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.kpi-card {
+    min-width: 0;
+    padding: 20px;
+    background: #fff;
+    border: 1px solid #eae5f2;
+    border-radius: 12px;
+}
+
+.kpi-card-title {
+    margin: 0 0 12px;
+    color: #666;
+    font-size: 0.875rem;
+}
+
+.kpi-card-value {
+    margin: 0;
+    font-size: clamp(1.1rem, 2vw, 1.6rem);
+    font-weight: 700;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 1100px) {
+    .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 600px) {
+    .kpi-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.kpi-card-change {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 14px;
+    font-size: 0.8rem;
+}
+
+.kpi-change-positive {
+    color: #16803c;
+    font-weight: 600;
+}
+
+.kpi-change-negative {
+    color: #b42318;
+    font-weight: 600;
+}
+
+.kpi-change-neutral,
+.kpi-change-label {
+    color: #667085;
+}

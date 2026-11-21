@@ -7,13 +7,18 @@ import { getAnalysisReadiness } from "../components/upload/validationReportPrese
 import ColumnMapping from "../components/ColumnMapping";
 import DataFormatSettings from "../components/DataFormatSettings";
 
-import { useCsvUpload } from "../hooks/useCsvUpload";
+import { useContext } from "react";
+import { UploadContext } from "../context/UploadContext";
 
 import "../css/Upload.css";
 
+import { useNavigate } from "react-router-dom";
+
 // Build the CSV preparation wizard from reusable components
 export default function UploadPage() {
-    const upload = useCsvUpload();
+    const navigate = useNavigate();
+
+    const upload = useContext(UploadContext);
 
     const busy = upload.previewLoading || upload.processing;
     const readiness = getAnalysisReadiness({
@@ -110,6 +115,25 @@ export default function UploadPage() {
                     readiness={readiness}
                     busy={busy}
                 />
+            )}
+
+            {upload.currentStep === 4 && (
+                <div className="upload-actions">
+                    <button
+                        type="button"
+                        className="upload-primary-button"
+                        disabled={
+                            busy ||
+                            upload.validationResult?.integrity?.status !== "passed" ||
+                            !Object.values(upload.validationResult?.analysisEligibility ?? {}).some(
+                                (operation) => operation.status === "available"
+                            )
+                        }
+                        onClick={() => navigate("/analysis")}
+                    >
+                        Continue to Analysis
+                    </button>
+                </div>
             )}
         </main>
     );
