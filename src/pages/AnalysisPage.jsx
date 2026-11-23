@@ -18,6 +18,12 @@ import { formatMoney } from "../utils/formatMoney.js";
 
 import { calculateMonthlyKpiChanges } from "../utils/calculateMonthlyKpiChanges.js";
 
+import SalesDynamicsChart from "../components/analytics/SalesDynamicsChart";
+import { calculateMonthlySales } from "../utils/calculateMonthlySales.js";
+
+import SalesByCategoryChart from "../components/analytics/SalesByCategoryChart.jsx";
+import { calculateSalesByCategory } from "../utils/calculateSalesByCategory.js";
+
 // Display KPI results from the validated CSV dataset.
 export default function AnalysisPage() {
     const upload = useContext(UploadContext);
@@ -55,12 +61,20 @@ export default function AnalysisPage() {
     // Compare monthly KPIs using records with valid dates and amounts.
     const datedSales = selectAnalysisRows(result, "dailySalesTrends");
 
+    const monthlySales =
+        datedSales.status === "available" ? calculateMonthlySales(datedSales.rows) : [];
+
     const monthlyChanges =
         datedSales.status === "available"
             ? calculateMonthlyKpiChanges(datedSales.rows, mapping)
             : null;
 
-    console.log(monthlyChanges);
+    // Select rows suitable for sales analysis by product category.
+    const categorySales = selectAnalysisRows(result, "salesByCategory");
+
+    // Calculate total revenue for each category.
+    const salesByCategory =
+        categorySales.status === "available" ? calculateSalesByCategory(categorySales.rows) : [];
 
     return (
         <section className="analysis-page">
@@ -94,6 +108,12 @@ export default function AnalysisPage() {
                     value={formatMoney(averageOrderValue)}
                     change={monthlyChanges?.changes?.averageOrderValue}
                 />
+            </div>
+
+            <div className="analysis-charts-grid">
+                <SalesDynamicsChart data={monthlySales} />
+
+                <SalesByCategoryChart data={salesByCategory} />
             </div>
         </section>
     );

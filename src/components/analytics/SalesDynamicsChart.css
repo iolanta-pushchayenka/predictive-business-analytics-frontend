@@ -1,0 +1,122 @@
+/* Sales Dynamics chart container */
+.sales-dynamics-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    width: 100%;
+    min-width: 0;
+    height: 390px;
+    padding: 24px;
+
+    background: #ffffff;
+    border: 1px solid #e8e2ef;
+    box-shadow: 0 3px 12px rgba(46, 26, 66, 0.04);
+    border-radius: 16px;
+
+    font-family: "Inter", sans-serif;
+}
+
+/* Chart title and description */
+.sales-dynamics-heading {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.sales-dynamics-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.sales-dynamics-title-row h2 {
+    margin: 0;
+
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 140%;
+
+    color: #302839;
+}
+
+.sales-dynamics-heading p {
+    margin: 0;
+
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 140%;
+
+    color: #79717f;
+}
+
+/* Current aggregation period */
+.sales-dynamics-period {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    min-width: 86px;
+    height: 32px;
+    padding: 6px 10px;
+
+    background: #fcfafe;
+    border: 1px solid #e8e2ef;
+    border-radius: 8px;
+
+    font-size: 12px;
+    font-weight: 500;
+    color: #665b70;
+}
+
+/* Revenue chart area */
+.sales-dynamics-chart {
+    position: relative;
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+}
+
+.sales-dynamics-axis-title {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    font-size: 11px;
+    line-height: 140%;
+    color: #79717f;
+}
+
+.sales-dynamics-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100%;
+    margin: 0;
+
+    color: #79717f;
+    font-size: 14px;
+    text-align: center;
+}
+
+/* Tablet and mobile */
+@media (max-width: 600px) {
+    .sales-dynamics-card {
+        height: 350px;
+        padding: 16px;
+        gap: 14px;
+    }
+
+    .sales-dynamics-title-row h2 {
+        font-size: 18px;
+    }
+
+    .sales-dynamics-heading p {
+        font-size: 12px;
+    }
+}
