@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { calculateSalesDistribution } from "./calculateSalesDistribution.js";
+import { calculateSalesDistribution } from "../src/utils/calculateSalesDistribution";
 
 describe("calculateSalesDistribution", () => {
     it("counts each valid amount exactly once", () => {
