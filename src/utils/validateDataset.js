@@ -1,10 +1,17 @@
-import { normalizeDate } from "./normalizeDate";
-import { normalizeAmount } from "./normalizeAmount";
-
-const MAPPING_FIELDS = ["date", "amount", "customerId", "orderId", "category"];
+import { normalizeDate } from "./normalizeDate.js";
+import { normalizeAmount } from "./normalizeAmount.js";
+import { analyzeAmountOutliers } from "./analyzeAmountOutliers.js";
+import { buildAnalysisEligibility, hasValidAmount } from "./buildAnalysisEligibility.js";
+import {
+    buildPreparationIssues,
+    MAPPING_FIELDS,
+    normalizeOptionalText,
+    OPTIONAL_FIELDS
+} from "./buildPreparationIssues.js";
+import { checkPreparedDatasetIntegrity } from "./checkPreparedDatasetIntegrity.js";
 
 // Validate the selected columns against the CSV headers
-function validateMapping(columns, mapping) {
+export function validateMapping(columns, mapping) {
     if (!Array.isArray(columns) || columns.length === 0) {
         throw new Error("CSV columns are required");
     }
@@ -26,20 +33,7 @@ function validateMapping(columns, mapping) {
     }
 }
 
-// Return an optional text field or null
-function normalizeOptionalText(row, column) {
-    if (!column) return null;
-
-    const value = row[column];
-
-    if (value === null || value === undefined) {
-        return null;
-    }
-
-    return String(value).trim() || null;
-}
-
-// Validate and normalize every CSV record
+/** Prepare records and attach analysis eligibility and integrity diagnostics. */
 export function validateDataset(rows, columns, mapping, formats) {
     if (!Array.isArray(rows)) {
         throw new Error("Dataset rows must be an array");
@@ -65,77 +59,71 @@ export function validateDataset(rows, columns, mapping, formats) {
         missingAmounts: 0,
         invalidAmounts: 0,
         negativeAmounts: 0,
+        zeroAmounts: 0,
+        highValueOutlierCount: 0,
         missingCustomerIds: 0
     };
 
     const preparedRows = rows.map((row, index) => {
+        const recordNumber = index + 1;
         const dateResult = normalizeDate(row[mapping.date], formats.date, {
             twoDigitYearCentury: formats.twoDigitYearCentury
         });
-
         const amountResult = normalizeAmount(row[mapping.amount], formats.amount);
 
-        const customerId = normalizeOptionalText(row, mapping.customerId);
+        const isNegativeAmount = amountResult.status === "negative";
+        const optional = {};
 
-        const orderId = normalizeOptionalText(row, mapping.orderId);
-
-        const category = normalizeOptionalText(row, mapping.category);
+        for (const field of OPTIONAL_FIELDS) {
+            optional[field] = normalizeOptionalText(row, mapping[field]);
+        }
 
         const validDate = dateResult.status === "valid";
-
-        const validAmount = amountResult.status === "valid" || amountResult.status === "negative";
+        const validAmount = hasValidAmount({ amountStatus: amountResult.status });
+        const validForSales = validDate && validAmount;
 
         if (validDate) report.validDateRows++;
         if (validAmount) report.validAmountRows++;
-
-        if (dateResult.status === "missing") {
-            report.missingDates++;
+        if (validForSales) report.validSalesRows++;
+        if (dateResult.status === "missing") report.missingDates++;
+        if (dateResult.status === "invalid") report.invalidDates++;
+        if (amountResult.status === "missing") report.missingAmounts++;
+        if (amountResult.status === "invalid") report.invalidAmounts++;
+        if (isNegativeAmount) report.negativeAmounts++;
+        if (amountResult.status === "valid" && amountResult.value === "0") {
+            report.zeroAmounts++;
         }
 
-        if (dateResult.status === "invalid") {
-            report.invalidDates++;
-        }
-
-        if (amountResult.status === "missing") {
-            report.missingAmounts++;
-        }
-
-        if (amountResult.status === "invalid") {
-            report.invalidAmounts++;
-        }
-
-        if (amountResult.status === "negative") {
-            report.negativeAmounts++;
-        }
-
-        if (mapping.customerId && customerId === null) {
+        if (mapping.customerId && optional.customerId === null) {
             report.missingCustomerIds++;
         }
 
-        const validForSales = validDate && validAmount;
-
-        if (validForSales) {
-            report.validSalesRows++;
-        }
-
         return {
-            recordNumber: index + 1,
-
+            recordNumber,
             date: dateResult.value,
             amount: amountResult.value,
-            customerId,
-            orderId,
-            category,
-
+            ...optional,
             dateStatus: dateResult.status,
             amountStatus: amountResult.status,
-
             validForSales
         };
     });
 
-    return {
+    const { diagnostics: outlierAnalysis, outlierRecordNumbers } =
+        analyzeAmountOutliers(preparedRows);
+
+    report.highValueOutlierCount = outlierRecordNumbers.length;
+
+    const result = {
         preparedRows,
-        report
+        report,
+        issues: buildPreparationIssues(preparedRows, mapping, outlierRecordNumbers),
+        outlierAnalysis,
+        analysisEligibility: buildAnalysisEligibility(preparedRows, mapping)
+    };
+
+    return {
+        ...result,
+        integrity: checkPreparedDatasetIntegrity(rows, mapping, result)
     };
 }

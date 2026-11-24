@@ -1,0 +1,192 @@
+/* Correlation matrix card */
+.correlation-card {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    background: #ffffff;
+    border: 1px solid #e8e2ef;
+    border-radius: 16px;
+    box-shadow: 0 3px 12px rgba(46, 26, 66, 0.04);
+}
+
+/* Card heading */
+.correlation-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.correlation-header h2 {
+    margin: 0;
+    color: #302839;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.correlation-header p {
+    margin: 0;
+    color: #79717f;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Scrollable matrix area */
+.correlation-table-scroll {
+    width: 100%;
+    min-width: 0;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.correlation-table {
+    width: 100%;
+    min-width: max-content;
+    border-collapse: separate;
+    border-spacing: 4px;
+    table-layout: fixed;
+}
+
+/* Row and column labels */
+.correlation-table th {
+    min-width: 68px;
+    max-width: 140px;
+    padding: 0 4px;
+    color: #79717f;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.4;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
+.correlation-table thead th {
+    height: 24px;
+    padding-bottom: 6px;
+}
+
+.correlation-table tbody th {
+    width: 68px;
+    text-align: right;
+    padding-right: 8px;
+}
+
+.correlation-table .correlation-corner {
+    width: 68px;
+    min-width: 68px;
+}
+
+/* Correlation values */
+.correlation-cell {
+    box-sizing: border-box;
+    min-width: 82px;
+    height: 40px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    color: #51415f;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.4;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.correlation-cell-dark {
+    color: #ffffff;
+}
+
+/* Color legend */
+.correlation-legend {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 8px;
+}
+
+.correlation-legend-title {
+    color: #79717f;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.correlation-legend-scale {
+    width: 61%;
+    max-width: 310px;
+    min-width: 130px;
+}
+
+.correlation-legend-bar {
+    height: 8px;
+    background: linear-gradient(
+        to right,
+        #c98699 0%,
+        #dfbcc9 25%,
+        #f5f1f8 50%,
+        #b7a1ce 75%,
+        #7950a3 100%
+    );
+}
+
+.correlation-legend-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 7px;
+    color: #79717f;
+    font-size: 10px;
+    line-height: 1.4;
+}
+
+/* Empty state */
+.correlation-empty {
+    margin: 12px 0;
+    color: #79717f;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+    .correlation-card {
+        padding: 20px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .correlation-card {
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .correlation-header h2 {
+        font-size: 18px;
+    }
+
+    .correlation-header p {
+        font-size: 13px;
+    }
+
+    .correlation-table th {
+        font-size: 11px;
+    }
+
+    .correlation-cell {
+        min-width: 72px;
+        height: 38px;
+        font-size: 12px;
+        padding: 8px;
+    }
+
+    .correlation-legend {
+        gap: 12px;
+    }
+
+    .correlation-legend-scale {
+        width: 65%;
+    }
+}

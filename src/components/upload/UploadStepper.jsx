@@ -1,6 +1,8 @@
-const steps = ["Upload File", "Column Mapping", "Data Formats", "Validation"];
+import "./UploadStepper.css";
 
-// Display the current step of CSV data preparation
+const steps = ["Upload file", "Map columns", "Data formats", "Validation"];
+
+// Display the current step of CSV data preparation.
 export default function UploadStepper({ currentStep }) {
     return (
         <nav className="upload-stepper" aria-label="Data preparation progress">
@@ -18,11 +20,15 @@ export default function UploadStepper({ currentStep }) {
                             } ${completed ? "is-completed" : ""}`}
                             aria-current={active ? "step" : undefined}
                         >
-                            <span className="upload-stepper-number">
+                            <span className="upload-stepper-number" aria-hidden="true">
                                 {completed ? "✓" : stepNumber}
                             </span>
 
-                            <span className="upload-stepper-label">{step}</span>
+                            <span className="upload-stepper-text">
+                                <span className="upload-stepper-caption">STEP {stepNumber}</span>
+
+                                <span className="upload-stepper-label">{step}</span>
+                            </span>
                         </li>
                     );
                 })}

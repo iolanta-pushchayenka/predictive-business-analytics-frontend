@@ -1,13 +1,22 @@
 import { useState } from "react";
+import "./FileUpload.css";
 
 // Display the CSV upload area and pass the selected file to the parent
-export default function FileUpload({ selectedFile, onFileSelect, maxFileSize = null, error = "" }) {
+export default function FileUpload({
+    selectedFile,
+    onFileSelect,
+    maxFileSize = null,
+    error = "",
+    loading = false
+}) {
     const [isDragging, setIsDragging] = useState(false);
     const [localError, setLocalError] = useState("");
 
     // Validate the selected file before sending it to the parent
     function handleFile(file) {
         setLocalError("");
+
+        if (loading) return;
 
         if (!file) return;
 
@@ -37,12 +46,14 @@ export default function FileUpload({ selectedFile, onFileSelect, maxFileSize = n
     function handleDragOver(event) {
         event.preventDefault();
         setIsDragging(true);
+        if (loading) return;
     }
 
     // Handle a file dropped into the upload area
     function handleDrop(event) {
         event.preventDefault();
         setIsDragging(false);
+        if (loading) return;
 
         const file = event.dataTransfer.files?.[0];
         handleFile(file);
@@ -98,6 +109,7 @@ export default function FileUpload({ selectedFile, onFileSelect, maxFileSize = n
                         accept=".csv,text/csv"
                         onChange={handleInputChange}
                         aria-label="Choose CSV file"
+                        disabled={loading}
                     />
                 </label>
 

@@ -1,0 +1,77 @@
+/* Reusable button */
+.ui-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 52px;
+    padding: 12px 20px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+
+    cursor: pointer;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s;
+}
+
+/* Main purple button */
+.ui-button--primary {
+    background: #7950a3;
+    color: #ffffff;
+}
+
+.ui-button--primary:hover:not(:disabled) {
+    background: #68428f;
+}
+
+/* Secondary outlined button */
+.ui-button--secondary {
+    background: #ffffff;
+    border-color: #cbd5e1;
+    color: #30213f;
+}
+
+.ui-button--secondary:hover:not(:disabled) {
+    background: #f8f5fc;
+    border-color: #7950a3;
+}
+
+/* Keyboard focus */
+.ui-button:focus-visible {
+    outline: 3px solid #7950a3;
+    outline-offset: 3px;
+}
+
+/* Disabled and loading states */
+.ui-button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Button icon */
+.ui-button svg {
+    flex-shrink: 0;
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .ui-button {
+        min-height: 44px;
+        padding: 10px 16px;
+    }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    .ui-button {
+        transition: none;
+    }
+}

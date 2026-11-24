@@ -6,6 +6,7 @@ import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
 import UploadPage from "./pages/UploadPage";
 import AppLayout from "./components/layout/AppLayout";
+import AnalysisPage from "./pages/AnalysisPage";
 
 function App() {
     return (
@@ -20,6 +21,7 @@ function App() {
                     <Route element={<ProtectedRoute />}>
                         <Route path="/home" element={<HomePage />} />
                         <Route path="/upload" element={<UploadPage />} />
+                        <Route path="/analysis" element={<AnalysisPage />} />
                     </Route>
                 </Route>
 

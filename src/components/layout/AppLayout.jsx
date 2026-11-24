@@ -3,6 +3,8 @@ import { Outlet, useLocation } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import "../../css/Layout.css";
+import { useCsvUpload } from "../../hooks/useCsvUpload";
+import { UploadContext } from "../../context/UploadContext";
 
 const pageTitles = {
     "/": "Dashboard",
@@ -18,6 +20,8 @@ export default function AppLayout() {
     const location = useLocation();
 
     const pageTitle = pageTitles[location.pathname] || "Workspace";
+
+    const upload = useCsvUpload();
 
     // Close the mobile menu using the Escape key.
     useEffect(() => {
@@ -46,7 +50,9 @@ export default function AppLayout() {
                 />
 
                 <main className="app-content" id="main-content">
-                    <Outlet />
+                    <UploadContext.Provider value={upload}>
+                        <Outlet />
+                    </UploadContext.Provider>
                 </main>
             </div>
         </div>

@@ -1,0 +1,119 @@
+/* CSV preview card */
+.csv-preview {
+    width: 100%;
+    min-width: 0;
+    margin-top: 24px;
+    padding: 28px 32px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 15px;
+}
+
+/* Preview heading */
+.csv-preview-header {
+    margin-bottom: 24px;
+}
+
+.csv-preview-header h2 {
+    margin: 0 0 8px;
+    color: #30213f;
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 1.3;
+}
+
+.csv-preview-header p {
+    margin: 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Scrollable table container */
+.csv-preview-table-container {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+}
+
+/* Keyboard focus for horizontal scrolling */
+.csv-preview-table-container:focus-visible {
+    outline: 3px solid #7950a3;
+    outline-offset: 3px;
+}
+
+/* CSV data table */
+.csv-preview table {
+    width: 100%;
+    border-collapse: collapse;
+    white-space: nowrap;
+    font-size: 13px;
+    text-align: left;
+}
+
+.csv-preview th,
+.csv-preview td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+}
+
+.csv-preview th {
+    background: #f8f5fc;
+    color: #493b57;
+    font-weight: 600;
+}
+
+.csv-preview td {
+    color: #475569;
+}
+
+.csv-preview tbody tr:nth-child(even) {
+    background: #fcfbfe;
+}
+
+.csv-preview tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Accessible table caption */
+.csv-preview-caption {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Tablet */
+@media (max-width: 768px) {
+    .csv-preview {
+        padding: 24px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+    .csv-preview {
+        padding: 20px 16px;
+    }
+
+    .csv-preview-header h2 {
+        font-size: 18px;
+    }
+
+    .csv-preview-header p {
+        font-size: 13px;
+    }
+
+    .csv-preview th,
+    .csv-preview td {
+        padding: 10px 12px;
+    }
+}

@@ -14,7 +14,7 @@ import {
 const navigationItems = [
     { label: "Dashboard", path: "/", icon: LayoutDashboard, enabled: false },
     { label: "Upload data", path: "/upload", icon: Upload, enabled: true },
-    { label: "Analysis", path: "/analysis", icon: ChartColumnIncreasing, enabled: false },
+    { label: "Analysis", path: "/analysis", icon: ChartColumnIncreasing, enabled: true },
     { label: "History", path: "/history", icon: History, enabled: false },
     { label: "Settings", path: "/settings", icon: Settings, enabled: false }
 ];
