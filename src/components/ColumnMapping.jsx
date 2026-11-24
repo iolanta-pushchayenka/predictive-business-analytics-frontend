@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { detectColumnMapping } from "../utils/columnMapping";
+import Button from "./ui/Button";
+import "./ColumnMapping.css";
 
 const FIELDS = [
     { key: "date", label: "Transaction Date", required: true },
@@ -9,11 +11,17 @@ const FIELDS = [
     { key: "category", label: "Product Category", required: false }
 ];
 
-export default function ColumnMapping({ columns, onConfirm, onMappingChange, processing = false }) {
+// Display and validate the CSV column mapping form.
+export default function ColumnMapping({
+    columns,
+    onConfirm,
+    onMappingChange,
+    processing = false,
+    onBack
+}) {
     const [mapping, setMapping] = useState(() => detectColumnMapping(columns));
 
-    // Update a selected CSV column
-    // Update the selected column and invalidate previous confirmation
+    // Update a selected column and invalidate previous confirmation.
     function handleMappingChange(field, value) {
         setMapping((previous) => ({
             ...previous,
@@ -31,62 +39,82 @@ export default function ColumnMapping({ columns, onConfirm, onMappingChange, pro
 
     const isValid = !hasDuplicates && !missingRequired;
 
-    // Confirm validated column mapping
+    // Confirm the mapping when all required fields are valid.
     function handleConfirm() {
-        if (!isValid) return;
+        if (!isValid || processing) return;
 
         onConfirm(mapping);
     }
 
     return (
-        <section className="column-mapping-card">
-            <div className="column-mapping-header">
-                <h2>Column Mapping</h2>
-                <p>Review the automatically detected columns and correct them if necessary.</p>
-            </div>
+        <div className="column-mapping">
+            <section className="column-mapping-card" aria-labelledby="column-mapping-title">
+                <div className="column-mapping-header">
+                    <h2 id="column-mapping-title">Column Mapping</h2>
 
-            <div className="column-mapping-grid">
-                {FIELDS.map((field) => (
-                    <div className="column-mapping-field" key={field.key}>
-                        <label className="column-mapping-label" htmlFor={`mapping-${field.key}`}>
-                            {field.label}
+                    <p>Review the automatically detected columns and correct them if necessary.</p>
+                </div>
 
-                            {field.required ? (
-                                <span className="column-mapping-required"> *</span>
-                            ) : (
-                                <span className="column-mapping-optional"> (optional)</span>
-                            )}
-                        </label>
+                <div className="column-mapping-grid">
+                    {FIELDS.map((field) => (
+                        <div className="column-mapping-field" key={field.key}>
+                            <label
+                                className="column-mapping-label"
+                                htmlFor={`mapping-${field.key}`}
+                            >
+                                {field.label}
 
-                        <select
-                            className="column-mapping-select"
-                            id={`mapping-${field.key}`}
-                            value={mapping[field.key] || ""}
-                            onChange={(event) => handleMappingChange(field.key, event.target.value)}
-                            disabled={processing}
-                        >
-                            <option value="">Not selected</option>
+                                {field.required ? (
+                                    <span className="column-mapping-required"> *</span>
+                                ) : (
+                                    <span className="column-mapping-optional"> (optional)</span>
+                                )}
+                            </label>
 
-                            {columns.map((column, index) => (
-                                <option key={index} value={column}>
-                                    {column}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                ))}
-            </div>
+                            <select
+                                className="column-mapping-select"
+                                id={`mapping-${field.key}`}
+                                value={mapping[field.key] || ""}
+                                onChange={(event) =>
+                                    handleMappingChange(field.key, event.target.value)
+                                }
+                                disabled={processing}
+                                required={field.required}
+                            >
+                                <option value="">Not selected</option>
+
+                                {columns.map((column, index) => (
+                                    <option key={index} value={column}>
+                                        {column}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    ))}
+                </div>
+
+                {hasDuplicates && (
+                    <p className="column-mapping-error" role="alert">
+                        Each CSV column can only be assigned to one field.
+                    </p>
+                )}
+            </section>
 
             <div className="column-mapping-actions">
-                <button
-                    type="button"
-                    className="upload-primary-button"
+                <Button variant="secondary" arrow="left" onClick={onBack} disabled={processing}>
+                    Back
+                </Button>
+
+                <Button
+                    variant="primary"
+                    arrow="right"
                     onClick={handleConfirm}
-                    disabled={processing}
+                    disabled={!isValid || processing}
+                    loading={processing}
                 >
-                    {processing ? "Processing..." : "Confirm Mapping"}
-                </button>
+                    {processing ? "Processing..." : "Confirm mapping"}
+                </Button>
             </div>
-        </section>
+        </div>
     );
 }

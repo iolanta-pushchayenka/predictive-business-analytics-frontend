@@ -1,9 +1,10 @@
 import { DATE_FORMATS } from "../utils/normalizeDate";
 import { AMOUNT_FORMATS } from "../utils/normalizeAmount";
+import "./DataFormatSettings.css";
 
-// Display the format settings for the selected CSV columns
+// Display configurable date and amount formats for the CSV dataset.
 export default function DataFormatSettings({ formats, onChange, disabled = false }) {
-    // Update a format setting
+    // Update a format setting while preserving other selections.
     function handleChange(field, value) {
         onChange({
             ...formats,
@@ -11,12 +12,14 @@ export default function DataFormatSettings({ formats, onChange, disabled = false
         });
     }
 
-    return (
-        <section className="data-formats">
-            <div className="data-formats-header">
-                <h2>Data Format Settings</h2>
+    const exampleYear = Number(formats.twoDigitYearCentury) === 1900 ? 1926 : 2026;
 
-                <p>Select the formats used in your CSV file.</p>
+    return (
+        <section className="data-formats" aria-labelledby="data-formats-title">
+            <div className="data-formats-header">
+                <h2 id="data-formats-title">Data Format Settings</h2>
+
+                <p>Specify how dates and numeric values should be interpreted in your CSV file.</p>
             </div>
 
             <div className="data-formats-grid">
@@ -83,10 +86,32 @@ export default function DataFormatSettings({ formats, onChange, disabled = false
                         <option value={2000}>2000–2099</option>
                         <option value={1900}>1900–1999</option>
                     </select>
+                </div>
+            </div>
 
-                    <p className="data-formats-help">
-                        Example: with 2000–2099 selected, the year 26 means 2026. Four-digit years
-                        are not affected.
+            <div className="data-formats-notice">
+                <div className="data-formats-notice-icon" aria-hidden="true">
+                    <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.8"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                    >
+                        <rect x="3" y="5" width="18" height="16" rx="2" />
+                        <path d="M7 3v4M17 3v4M3 10h18" />
+                    </svg>
+                </div>
+
+                <div>
+                    <p className="data-formats-notice-title">Your date interpretation</p>
+
+                    <p className="data-formats-notice-text">
+                        Two-digit year 26 is interpreted as {exampleYear}. Four-digit years are not
+                        affected.
                     </p>
                 </div>
             </div>

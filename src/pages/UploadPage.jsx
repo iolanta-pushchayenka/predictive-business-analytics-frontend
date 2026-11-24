@@ -14,6 +14,8 @@ import "../css/Upload.css";
 
 import { useNavigate } from "react-router-dom";
 
+import Button from "../components/ui/Button";
+
 // Build the CSV preparation wizard from reusable components
 export default function UploadPage() {
     const navigate = useNavigate();
@@ -41,7 +43,7 @@ export default function UploadPage() {
             {upload.currentStep === 1 && (
                 <>
                     <FileUpload
-                        file={upload.file}
+                        selectedFile={upload.file}
                         onFileSelect={upload.handleFileSelect}
                         loading={upload.previewLoading}
                     />
@@ -51,16 +53,16 @@ export default function UploadPage() {
                     <CsvPreview columns={upload.columns} rows={upload.preview} />
 
                     <div className="upload-actions">
-                        <button
-                            className="upload-primary-button"
-                            type="button"
+                        <Button
+                            variant="primary"
+                            showArrow
                             onClick={upload.handleContinueFromUpload}
                             disabled={
                                 !upload.file || !upload.columns.length || upload.previewLoading
                             }
                         >
-                            Continue
-                        </button>
+                            Continue to column mapping
+                        </Button>
                     </div>
                 </>
             )}
@@ -74,54 +76,61 @@ export default function UploadPage() {
                         onConfirm={upload.handleMappingConfirm}
                         onMappingChange={upload.handleMappingChange}
                         processing={upload.processing}
+                        onBack={upload.handleBack}
                     />
                 </div>
             )}
 
             {/* Step 3: Data format settings */}
             {upload.currentStep === 3 && upload.confirmedMapping && (
-                <section className="upload-step-card">
-                    <p className="upload-step-description">
-                        Your CSV file contains {upload.fullRows.length} rows. Specify the formats
-                        used in your dataset.
-                    </p>
-
+                <>
                     <DataFormatSettings
                         formats={upload.formats}
                         onChange={upload.handleFormatChange}
+                        disabled={upload.processing}
                     />
 
-                    <div className="upload-actions">
-                        <button
-                            className="upload-primary-button"
-                            type="button"
+                    <div className="upload-actions upload-actions--between">
+                        <Button
+                            variant="secondary"
+                            arrow="left"
+                            onClick={upload.handleBack}
+                            disabled={upload.processing}
+                        >
+                            Back
+                        </Button>
+
+                        <Button
+                            variant="primary"
+                            arrow="right"
                             onClick={upload.handleValidateDataset}
                             disabled={
                                 !upload.formats.date || !upload.formats.amount || upload.processing
                             }
+                            loading={upload.processing}
                         >
-                            Validate Dataset
-                        </button>
+                            {upload.processing ? "Validating..." : "Validate Data"}
+                        </Button>
                     </div>
-                </section>
+                </>
             )}
 
-            {/* Step 4: Data quality report */}
+            {/* Step 4: Navigation */}
             {upload.currentStep === 4 && (
-                <ValidationSummary
-                    validationResult={upload.validationResult}
-                    initialProfile={upload.initialProfile}
-                    confirmedMapping={upload.confirmedMapping}
-                    readiness={readiness}
-                    busy={busy}
-                />
-            )}
+                <div className="upload-actions upload-actions--between">
+                    <Button
+                        variant="secondary"
+                        arrow="left"
+                        onClick={upload.handleBack}
+                        disabled={busy}
+                    >
+                        Back
+                    </Button>
 
-            {upload.currentStep === 4 && (
-                <div className="upload-actions">
-                    <button
-                        type="button"
-                        className="upload-primary-button"
+                    <Button
+                        variant="primary"
+                        arrow="right"
+                        onClick={() => navigate("/analysis")}
                         disabled={
                             busy ||
                             upload.validationResult?.integrity?.status !== "passed" ||
@@ -129,10 +138,9 @@ export default function UploadPage() {
                                 (operation) => operation.status === "available"
                             )
                         }
-                        onClick={() => navigate("/analysis")}
                     >
                         Continue to Analysis
-                    </button>
+                    </Button>
                 </div>
             )}
         </main>

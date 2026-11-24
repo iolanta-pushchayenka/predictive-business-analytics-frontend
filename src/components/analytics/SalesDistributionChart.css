@@ -1,0 +1,60 @@
+/* Sales distribution chart card */
+.sales-distribution-card {
+    width: 100%;
+    min-width: 0;
+    padding: 24px;
+
+    background: #ffffff;
+    border: 1px solid #e8e2ef;
+    border-radius: 16px;
+    box-shadow: 0 3px 12px rgba(46, 26, 66, 0.04);
+}
+
+/* Chart heading */
+.sales-distribution-header {
+    margin-bottom: 18px;
+}
+
+.sales-distribution-header h2 {
+    margin: 0 0 4px;
+    color: #302839;
+    font-size: 20px;
+    font-weight: 500;
+    line-height: 1.4;
+}
+
+.sales-distribution-header p {
+    margin: 0;
+    color: #79717f;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* Responsive histogram */
+.sales-distribution-plot {
+    width: 100%;
+    height: 290px;
+    min-width: 0;
+}
+
+/* Empty state */
+.sales-distribution-empty {
+    color: #79717f;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .sales-distribution-card {
+        padding: 20px 16px;
+    }
+
+    .sales-distribution-header h2 {
+        font-size: 18px;
+    }
+
+    .sales-distribution-plot {
+        height: 260px;
+    }
+}

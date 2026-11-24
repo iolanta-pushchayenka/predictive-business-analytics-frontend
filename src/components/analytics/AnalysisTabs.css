@@ -1,0 +1,89 @@
+/* Analysis section navigation */
+.analysis-tabs {
+    display: flex;
+    width: 100%;
+    min-width: 0;
+
+    background: #fcfafe;
+    border: 1px solid #e8e2ef;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Individual navigation item */
+.analysis-tab {
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+
+    min-width: 0;
+    min-height: 64px;
+    padding: 12px 10px;
+
+    border: none;
+    border-bottom: 3px solid transparent;
+
+    background: transparent;
+    color: #665b70;
+
+    font: inherit;
+    font-size: 16px;
+    font-weight: 500;
+
+    cursor: pointer;
+}
+
+/* Active analysis section */
+.analysis-tab.is-active {
+    border-bottom-color: #7950a3;
+    color: #7950a3;
+}
+
+.analysis-tab:hover:not(.is-active) {
+    background: #f3edf9;
+}
+
+.analysis-tab:focus-visible {
+    outline: 3px solid #7950a3;
+    outline-offset: -4px;
+}
+
+.analysis-tab svg {
+    flex-shrink: 0;
+}
+
+.analysis-tab-label {
+    text-align: center;
+}
+
+/* Tablet */
+@media (max-width: 900px) {
+    .analysis-tab {
+        font-size: 13px;
+        gap: 6px;
+        padding: 10px 6px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    .analysis-tab {
+        flex: 1;
+        min-height: 56px;
+        padding: 8px 6px;
+    }
+
+    .analysis-tab.is-active {
+        flex: 3;
+    }
+
+    .analysis-tab:not(.is-active) .analysis-tab-label {
+        display: none;
+    }
+
+    .analysis-tab.is-active .analysis-tab-label {
+        font-size: 12px;
+    }
+}
