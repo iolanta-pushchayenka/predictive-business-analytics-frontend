@@ -1,6 +1,27 @@
 import { logError } from "../utils/logger";
 const API_URL = import.meta.env.VITE_API_URL;
 
+const httpErrorMessages = {
+    400: "Check the information you entered and try again.",
+    401: "Authentication required or invalid credentials.",
+    403: "You do not have permission to perform this action.",
+    404: "The requested resource was not found.",
+    409: "The request conflicts with existing data.",
+    500: "A server error occurred. Please try again later."
+};
+
+const userFacingApiErrors = {
+    400: ["Invalid login data", "Invalid registration data"],
+    401: [
+        "Invalid email or password",
+        "Authentication token is required",
+        "Invalid authentication token",
+        "Invalid or expired authentication token",
+        "User no longer exists"
+    ],
+    409: ["Email is already registered"]
+};
+
 // Represent an API error with its HTTP status.
 export class ApiError extends Error {
     constructor(message, status) {
@@ -56,21 +77,13 @@ export async function apiRequest(endpoint, options = {}) {
 
         // Handle HTTP errors.
         if (!response.ok) {
-            const errorMessages = {
-                401: "Authentication required or invalid credentials.",
-                403: "You do not have permission to perform this action.",
-                404: "The requested resource was not found.",
-                500: "A server error occurred. Please try again later."
-            };
+            const { status } = response;
+            const fallback = httpErrorMessages[status >= 500 ? 500 : status];
+            const message = userFacingApiErrors[status]?.includes(data?.error)
+                ? data.error
+                : fallback ?? "The request failed. Please try again.";
 
-            const serverMessage = typeof data?.error === "string" ? data.error : null;
-
-            const message =
-                serverMessage ||
-                errorMessages[response.status] ||
-                "The request failed. Please try again.";
-
-            throw new ApiError(message, response.status);
+            throw new ApiError(message, status);
         }
 
         return data;
