@@ -1,129 +1,3 @@
-// import { useContext, useMemo, useState } from "react";
-
-// import { UploadContext } from "../context/UploadContext";
-
-// import { formatMoney } from "../utils/formatMoney.js";
-
-// import KpiCard from "../components/analytics/KpiCard";
-// import SalesDynamicsChart from "../components/analytics/SalesDynamicsChart";
-// import SalesByCategoryChart from "../components/analytics/SalesByCategoryChart.jsx";
-// import AnalysisTabs from "../components/analytics/AnalysisTabs";
-// import CorrelationMatrix from "../components/analytics/CorrelationMatrix.jsx";
-
-// import SalesDistributionChart from "../components/analytics/SalesDistributionChart";
-
-// import { calculateEda } from "../utils/calculateEda.js";
-
-// import "../css/Analysis.css";
-
-// // Display analysis results for the validated CSV dataset.
-// export default function AnalysisPage() {
-//     const [activeTab, setActiveTab] = useState("eda");
-
-//     const upload = useContext(UploadContext);
-
-//     const result = upload?.validationResult;
-//     const mapping = upload?.confirmedMapping;
-//     const columns = upload?.columns;
-//     const fullRows = upload?.fullRows;
-
-//     if (!result || !mapping) {
-//         return (
-//             <section className="analysis-page">
-//                 <h1>Analysis results</h1>
-//                 <p>Upload and validate a CSV file to view analytics.</p>
-//             </section>
-//         );
-//     }
-
-//     // Get all analytics results from the shared computation module.
-//     const {
-//         totalRevenue,
-//         numberOfOrders,
-//         averageOrderValue,
-//         uniqueCustomers,
-//         monthlyChanges,
-//         monthlySales,
-//         salesByCategory,
-//         salesDistribution,
-//         correlationAnalysis
-//     } = calculateEda({
-//         result,
-//         mapping,
-//         columns,
-//         fullRows
-//     });
-
-//     return (
-//         <section className="analysis-page">
-//             <header className="analysis-page-header">
-//                 <h1>Analysis results</h1>
-
-//                 <p className="analysis-description">
-//                     Prepared from {result.report.totalRows.toLocaleString()} records
-//                     {" · "}Client-side processing
-//                 </p>
-//             </header>
-
-//             <AnalysisTabs activeTab={activeTab} onChange={setActiveTab} />
-
-//             {activeTab === "eda" && (
-//                 <div className="analysis-content">
-//                     <div className="kpi-grid">
-//                         <KpiCard
-//                             title="Total Sales"
-//                             value={formatMoney(totalRevenue)}
-//                             change={monthlyChanges?.changes?.totalSales}
-//                         />
-
-//                         <KpiCard
-//                             title="Orders"
-//                             value={numberOfOrders?.toLocaleString()}
-//                             change={monthlyChanges?.changes?.orders}
-//                         />
-
-//                         <KpiCard
-//                             title="Customers"
-//                             value={uniqueCustomers?.toLocaleString()}
-//                             change={monthlyChanges?.changes?.customers}
-//                         />
-
-//                         <KpiCard
-//                             title="Average Order Value"
-//                             value={formatMoney(averageOrderValue)}
-//                             change={monthlyChanges?.changes?.averageOrderValue}
-//                         />
-//                     </div>
-
-//                     <div className="analysis-charts-grid">
-//                         <SalesDynamicsChart data={monthlySales} />
-
-//                         <SalesByCategoryChart data={salesByCategory} />
-
-//                         <SalesDistributionChart data={salesDistribution} />
-
-//                         <CorrelationMatrix data={correlationAnalysis} />
-//                     </div>
-//                 </div>
-//             )}
-
-//             {activeTab === "forecasts" && (
-//                 <section className="analysis-empty-section">
-//                     <h2>Sales Forecasts</h2>
-//                     <p>Sales forecasting is not available yet.</p>
-//                 </section>
-//             )}
-
-//             {activeTab === "segmentation" && (
-//                 <section className="analysis-empty-section">
-//                     <h2>Customer Segmentation</h2>
-//                     <p>Customer segmentation is not available yet.</p>
-//                 </section>
-//             )}
-//         </section>
-//     );
-// }
-
 import { useContext, useEffect, useState } from "react";
 
 import { UploadContext } from "../context/UploadContext";
@@ -152,8 +26,8 @@ export default function AnalysisPage() {
     const runTask = upload?.runTask;
 
     const [edaState, setEdaState] = useState(null);
-    const [edaLoading, setEdaLoading] = useState(false);
-    const [edaError, setEdaError] = useState("");
+
+    // Request EDA calculations when the validated dataset changes.
 
     // Request EDA calculations when the validated dataset changes.
     useEffect(() => {
@@ -162,9 +36,6 @@ export default function AnalysisPage() {
         }
 
         let active = true;
-
-        setEdaLoading(true);
-        setEdaError("");
 
         // Execute EDA in the Worker and save the returned results.
         async function loadEda() {
@@ -183,18 +54,22 @@ export default function AnalysisPage() {
                     sourceMapping: mapping,
                     sourceColumns: columns,
                     sourceRows: fullRows,
-                    data: edaResult
+                    data: edaResult,
+                    error: ""
                 });
             } catch (err) {
                 if (!active || err.name === "AbortError") {
                     return;
                 }
 
-                setEdaError(err.message || "Failed to calculate analytics.");
-            } finally {
-                if (active) {
-                    setEdaLoading(false);
-                }
+                setEdaState({
+                    sourceResult: result,
+                    sourceMapping: mapping,
+                    sourceColumns: columns,
+                    sourceRows: fullRows,
+                    data: null,
+                    error: err.message || "Failed to calculate analytics."
+                });
             }
         }
 
@@ -214,6 +89,7 @@ export default function AnalysisPage() {
         edaState?.sourceRows === fullRows;
 
     const eda = edaIsCurrent ? edaState.data : null;
+    const edaError = edaIsCurrent ? edaState.error : "";
 
     // Show a message when no validated CSV is available.
     if (!result || !mapping) {
@@ -240,9 +116,7 @@ export default function AnalysisPage() {
         return (
             <section className="analysis-page">
                 <h1>Analysis results</h1>
-                <p role="status">
-                    {edaLoading ? "Calculating analytics..." : "Preparing analytics..."}
-                </p>
+                <p role="status">Calculating analytics...</p>
             </section>
         );
     }

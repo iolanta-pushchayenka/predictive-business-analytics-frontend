@@ -1,0 +1,25 @@
+.csv-upload-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+
+    min-height: 52px;
+    padding: 12px 20px;
+
+    border: 1px solid transparent;
+    border-radius: 10px;
+
+    font: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.2;
+
+    cursor: pointer;
+    transition:
+        background-color 0.2s,
+        border-color 0.2s;
+
+    background: #7950a3;
+    color: #ffffff;
+}

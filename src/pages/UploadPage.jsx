@@ -1,8 +1,6 @@
 import FileUpload from "../components/upload/FileUpload";
 import UploadStepper from "../components/upload/UploadStepper";
 import CsvPreview from "../components/upload/CsvPreview";
-import ValidationSummary from "../components/upload/ValidationSummary";
-import { getAnalysisReadiness } from "../components/upload/validationReportPresentation.js";
 
 import ColumnMapping from "../components/ColumnMapping";
 import DataFormatSettings from "../components/DataFormatSettings";
@@ -23,11 +21,6 @@ export default function UploadPage() {
     const upload = useContext(UploadContext);
 
     const busy = upload.previewLoading || upload.processing;
-    const readiness = getAnalysisReadiness({
-        currentStep: upload.currentStep,
-        validationResult: upload.validationResult,
-        busy
-    });
 
     return (
         <main className="upload-page">
@@ -57,11 +50,10 @@ export default function UploadPage() {
                             variant="primary"
                             showArrow
                             onClick={upload.handleContinueFromUpload}
-                            disabled={
-                                !upload.file || !upload.columns.length || upload.previewLoading
-                            }
+                            disabled={!upload.file || !upload.columns.length || busy}
+                            loading={upload.processing}
                         >
-                            Continue to column mapping
+                            {upload.processing ? "Processing..." : "Continue to column mapping"}
                         </Button>
                     </div>
                 </>

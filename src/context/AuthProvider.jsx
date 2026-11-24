@@ -38,9 +38,10 @@
 //     );
 // }
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
-import { loginUser, registerUser } from "../api/authApi";
+import { getCurrentUser, loginUser, registerUser } from "../api/authApi";
+import { logError } from "../utils/logger";
 import { AuthContext } from "./AuthContext";
 
 const AUTH_STORAGE_KEY = "business-analytics-auth";
@@ -69,9 +70,51 @@ function readStoredAuth() {
 // Provide authentication state and functions to child components.
 export function AuthProvider({ children }) {
     const [auth, setAuth] = useState(readStoredAuth);
+    const [initializing, setInitializing] = useState(Boolean(auth));
+    const validationRef = useRef(null);
 
     const user = auth?.user ?? null;
     const token = auth?.token ?? null;
+
+    useEffect(() => {
+        if (!initializing || !token) return;
+
+        // Reuse the request when Strict Mode replays the effect.
+        const validation = (validationRef.current ??= getCurrentUser(token));
+        let active = true;
+
+        async function validateSession() {
+            try {
+                await validation;
+            } catch (error) {
+                if (active && validationRef.current === validation && error?.status === 401) {
+                    try {
+                        sessionStorage.removeItem(AUTH_STORAGE_KEY);
+                    } catch (storageError) {
+                        logError("Auth storage", storageError);
+                    }
+                    setAuth(null);
+                }
+            } finally {
+                if (active && validationRef.current === validation) {
+                    validationRef.current = null;
+                    setInitializing(false);
+                }
+            }
+        }
+
+        validateSession();
+
+        return () => {
+            active = false;
+        };
+    }, [initializing, token]);
+
+    function updateAuth(nextAuth) {
+        validationRef.current = null;
+        setAuth(nextAuth);
+        setInitializing(false);
+    }
 
     // Log in and save authentication for the current browser tab.
     async function login(email, password) {
@@ -83,7 +126,7 @@ export function AuthProvider({ children }) {
         };
 
         sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextAuth));
-        setAuth(nextAuth);
+        updateAuth(nextAuth);
     }
 
     // Register and save authentication for the current browser tab.
@@ -96,17 +139,17 @@ export function AuthProvider({ children }) {
         };
 
         sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(nextAuth));
-        setAuth(nextAuth);
+        updateAuth(nextAuth);
     }
 
     // Log out and remove saved authentication data.
     function logout() {
         sessionStorage.removeItem(AUTH_STORAGE_KEY);
-        setAuth(null);
+        updateAuth(null);
     }
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout }}>
+        <AuthContext.Provider value={{ user, token, initializing, login, register, logout }}>
             {children}
         </AuthContext.Provider>
     );

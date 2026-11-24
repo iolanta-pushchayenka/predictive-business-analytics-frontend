@@ -22,7 +22,7 @@ export default function RegisterPage() {
 
         try {
             await register(email, password);
-            navigate("/upload", { replace: true });
+            navigate("/home", { replace: true });
         } catch (error) {
             setError(error.message || "Failed to register");
         } finally {

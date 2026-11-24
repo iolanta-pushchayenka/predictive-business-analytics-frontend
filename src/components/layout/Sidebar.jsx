@@ -12,10 +12,10 @@ import {
 // Navigation items for the application workspace.
 // Only existing pages are enabled.
 const navigationItems = [
-    { label: "Dashboard", path: "/", icon: LayoutDashboard, enabled: false },
+    { label: "Home", path: "/home", icon: LayoutDashboard, enabled: true },
     { label: "Upload data", path: "/upload", icon: Upload, enabled: true },
     { label: "Analysis", path: "/analysis", icon: ChartColumnIncreasing, enabled: true },
-    { label: "History", path: "/history", icon: History, enabled: false },
+    { label: "History", path: "/history", icon: History, enabled: true },
     { label: "Settings", path: "/settings", icon: Settings, enabled: false }
 ];
 

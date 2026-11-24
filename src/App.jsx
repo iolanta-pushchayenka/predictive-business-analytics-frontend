@@ -8,6 +8,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const UploadPage = lazy(() => import("./pages/UploadPage"));
 const AnalysisPage = lazy(() => import("./pages/AnalysisPage"));
+const HistoryPage = lazy(() => import("./pages/HistoryPage"));
 
 // Load the authenticated workspace layout separately.
 const AppLayout = lazy(() => import("./components/layout/AppLayout"));
@@ -36,6 +37,7 @@ function App() {
                             <Route path="/home" element={<HomePage />} />
                             <Route path="/upload" element={<UploadPage />} />
                             <Route path="/analysis" element={<AnalysisPage />} />
+                            <Route path="/history" element={<HistoryPage />} />
                         </Route>
                     </Route>
 

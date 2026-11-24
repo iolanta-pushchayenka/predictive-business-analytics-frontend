@@ -22,7 +22,7 @@ export default function LoginPage() {
 
         try {
             await login(email, password);
-            navigate("/upload", { replace: true });
+            navigate("/home", { replace: true });
         } catch (error) {
             setError(error.message || "Failed to log in");
         } finally {

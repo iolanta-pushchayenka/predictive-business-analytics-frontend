@@ -13,6 +13,7 @@ export function useAnalysisWorker() {
     const pendingRequestsRef = useRef(new Map());
     const nextRequestIdRef = useRef(0);
     const mountedRef = useRef(false);
+    const initializationErrorRef = useRef(null);
 
     const [pendingCount, setPendingCount] = useState(0);
     const [error, setError] = useState(null);
@@ -126,7 +127,7 @@ export function useAnalysisWorker() {
         try {
             createWorker();
         } catch (workerError) {
-            setError(workerError.message);
+            initializationErrorRef.current = workerError.message;
         }
 
         // Stop the Worker and reject pending tasks on unmount.
@@ -146,7 +147,11 @@ export function useAnalysisWorker() {
             const worker = workerRef.current;
 
             if (!worker) {
-                reject(new Error("Analysis worker is not available."));
+                const message =
+                    initializationErrorRef.current ?? "Analysis worker is not available.";
+
+                setError(message);
+                reject(new Error(message));
                 return;
             }
 
