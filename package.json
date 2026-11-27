@@ -14,7 +14,7 @@
     },
     "dependencies": {
         "@fontsource/inter": "^5.3.0",
-        "analytics-core": "file:../analytics-core",
+        "analytics-core": "github:iolanta-pushchayenka/analytics-core#ab68c2ca0fcac39e377398cb30935e12fbe25533",
         "lucide-react": "^1.78.0",
         "papaparse": "^5.7.1",
         "react": "^19.3.1",

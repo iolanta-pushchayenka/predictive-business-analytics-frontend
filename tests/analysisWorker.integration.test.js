@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { calculateEda } from "../src/utils/calculateEda.js";
+import { calculateEda } from "analytics-core";
 
 // Create a simulated Worker using real analysis functions.
 async function createTestWorker() {

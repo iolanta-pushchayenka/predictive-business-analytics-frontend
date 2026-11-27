@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { parseCsv } from "../src/utils/parseCsv.js";
-import { profileDataset } from "../src/utils/profileDataset.js";
+import { parseCsv, profileDataset } from "analytics-core";
 
 describe("profileDataset", () => {
     it("counts raw presence and distinct trimmed values without changing source records", async () => {

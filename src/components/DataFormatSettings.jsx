@@ -1,5 +1,4 @@
-import { DATE_FORMATS } from "../utils/normalizeDate";
-import { AMOUNT_FORMATS } from "../utils/normalizeAmount";
+import { AMOUNT_FORMATS, DATE_FORMATS } from "analytics-core";
 import "./DataFormatSettings.css";
 
 // Display configurable date and amount formats for the CSV dataset.
