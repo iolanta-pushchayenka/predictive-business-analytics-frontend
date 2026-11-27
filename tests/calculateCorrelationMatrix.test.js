@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { calculateCorrelationMatrix } from "../src/utils/calculateCorrelationMatrix.js";
+import { calculateCorrelationMatrix } from "../src/utils/calculateCorrelationMatrix";
 
 describe("calculateCorrelationMatrix", () => {
     it("calculates perfect positive correlation", () => {
