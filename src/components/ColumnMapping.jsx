@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { detectColumnMapping } from "../utils/columnMapping";
+import { detectColumnMapping } from "analytics-core";
 import Button from "./ui/Button";
 import "./ColumnMapping.css";
 

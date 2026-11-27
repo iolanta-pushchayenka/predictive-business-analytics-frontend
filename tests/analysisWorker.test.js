@@ -1,25 +1,19 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import { parseCsv } from "../src/utils/parseCsv.js";
-import { profileDataset } from "../src/utils/profileDataset.js";
-import { validateMapping, validateDataset } from "../src/utils/validateDataset.js";
-import { calculateEda } from "../src/utils/calculateEda.js";
+import {
+    parseCsv,
+    profileDataset,
+    validateMapping,
+    validateDataset,
+    calculateEda
+} from "analytics-core";
 
-// Mock existing algorithms to test Worker task routing.
-vi.mock("../src/utils/parseCsv.js", () => ({
-    parseCsv: vi.fn()
-}));
-
-vi.mock("../src/utils/profileDataset.js", () => ({
-    profileDataset: vi.fn()
-}));
-
-vi.mock("../src/utils/validateDataset.js", () => ({
+// Mock shared analytics functions to test Worker task routing.
+vi.mock("analytics-core", () => ({
+    parseCsv: vi.fn(),
+    profileDataset: vi.fn(),
     validateMapping: vi.fn(),
-    validateDataset: vi.fn()
-}));
-
-vi.mock("../src/utils/calculateEda.js", () => ({
+    validateDataset: vi.fn(),
     calculateEda: vi.fn()
 }));
 

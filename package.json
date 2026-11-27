@@ -14,6 +14,7 @@
     },
     "dependencies": {
         "@fontsource/inter": "^5.3.0",
+        "analytics-core": "file:../analytics-core",
         "lucide-react": "^1.78.0",
         "papaparse": "^5.7.1",
         "react": "^19.3.1",

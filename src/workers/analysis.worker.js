@@ -1,7 +1,10 @@
-import { parseCsv } from "../utils/parseCsv.js";
-import { calculateEda } from "../utils/calculateEda.js";
-import { profileDataset } from "../utils/profileDataset.js";
-import { validateMapping, validateDataset } from "../utils/validateDataset.js";
+import {
+    parseCsv,
+    calculateEda,
+    profileDataset,
+    validateMapping,
+    validateDataset
+} from "analytics-core";
 
 // Execute a supported analysis task inside the Web Worker.
 async function executeTask(type, payload) {
